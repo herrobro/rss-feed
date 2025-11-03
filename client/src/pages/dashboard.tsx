@@ -10,12 +10,28 @@ import { Button } from "@/components/ui/button";
 import type { Article } from "@/components/article-card";
 
 export default function Dashboard() {
-  //todo: remove mock functionality
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rssFeedUrl, setRssFeedUrl] = useState("");
   const [currentFeedUrl, setCurrentFeedUrl] = useState<string | null>(null);
+
+  const fetchFeed = async (feedUrl: string) => {
+    const response = await fetch("/api/rss-feed", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ rssFeedUrl: feedUrl }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Failed to fetch RSS feed" }));
+      throw new Error(errorData.error || "Failed to fetch RSS feed");
+    }
+
+    return response.json();
+  };
 
   const handleLoadFeed = async () => {
     if (!rssFeedUrl.trim()) {
@@ -26,45 +42,15 @@ export default function Dashboard() {
     setIsLoading(true);
     setError(null);
     
-    //todo: remove mock functionality - simulate API call to webhook
-    console.log("Loading RSS feed from webhook with URL:", rssFeedUrl);
-    
-    setTimeout(() => {
-      //todo: remove mock functionality - simulate random success/error
-      const shouldSucceed = Math.random() > 0.3;
-      
-      if (shouldSucceed) {
-        //todo: remove mock functionality - mock articles
-        const mockArticles = [
-          {
-            title: "Introduction to React Query: A Complete Guide",
-            link: "https://example.com/react-query-guide"
-          },
-          {
-            title: "Building Scalable Web Applications with TypeScript",
-            link: "https://example.com/typescript-apps"
-          },
-          {
-            title: "Modern CSS Techniques for Responsive Design",
-            link: "https://example.com/css-responsive"
-          },
-          {
-            title: "Understanding JavaScript Async/Await Patterns",
-            link: "https://example.com/async-await"
-          },
-          {
-            title: "Best Practices for API Design in 2025",
-            link: "https://example.com/api-design"
-          }
-        ];
-        setArticles(mockArticles);
-        setCurrentFeedUrl(rssFeedUrl);
-      } else {
-        setError("Failed to fetch RSS feed. Please check your connection and try again.");
-      }
-      
+    try {
+      const articles = await fetchFeed(rssFeedUrl);
+      setArticles(articles);
+      setCurrentFeedUrl(rssFeedUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch RSS feed");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleRefresh = async () => {
@@ -76,26 +62,14 @@ export default function Dashboard() {
     setIsLoading(true);
     setError(null);
     
-    //todo: remove mock functionality - simulate API call
-    console.log("Refreshing RSS feed from webhook with URL:", currentFeedUrl);
-    
-    setTimeout(() => {
-      //todo: remove mock functionality - simulate random success/error
-      const shouldSucceed = Math.random() > 0.3;
-      
-      if (shouldSucceed) {
-        //todo: remove mock functionality - add a new article to demonstrate refresh
-        const newArticle = {
-          title: `New Article - ${new Date().toLocaleTimeString()}`,
-          link: `https://example.com/article-${Date.now()}`
-        };
-        setArticles(prev => [newArticle, ...prev]);
-      } else {
-        setError("Failed to fetch RSS feed. Please check your connection and try again.");
-      }
-      
+    try {
+      const articles = await fetchFeed(currentFeedUrl);
+      setArticles(articles);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch RSS feed");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
