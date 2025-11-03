@@ -5,6 +5,7 @@ import { ArticleList } from "@/components/article-list";
 import { EmptyState } from "@/components/empty-state";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
 import { ErrorBanner } from "@/components/error-banner";
+import { Input } from "@/components/ui/input";
 import type { Article } from "@/components/article-card";
 
 export default function Dashboard() {
@@ -33,13 +34,14 @@ export default function Dashboard() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rssFeedUrl, setRssFeedUrl] = useState("");
 
   const handleRefresh = async () => {
     setIsLoading(true);
     setError(null);
     
     //todo: remove mock functionality - simulate API call
-    console.log("Fetching RSS feed from webhook...");
+    console.log("Fetching RSS feed from webhook with URL:", rssFeedUrl);
     
     setTimeout(() => {
       //todo: remove mock functionality - simulate random success/error
@@ -65,7 +67,15 @@ export default function Dashboard() {
       <Header />
       <main className="container max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-3xl mx-auto">
-          <div className="mb-8">
+          <div className="mb-8 flex flex-col sm:flex-row gap-4">
+            <Input
+              type="url"
+              placeholder="Enter RSS feed URL"
+              value={rssFeedUrl}
+              onChange={(e) => setRssFeedUrl(e.target.value)}
+              className="flex-1"
+              data-testid="input-rss-url"
+            />
             <RefreshButton onClick={handleRefresh} isLoading={isLoading} />
           </div>
 
