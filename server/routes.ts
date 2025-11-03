@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { articlesResponseSchema } from "@shared/schema";
 
-const N8N_WEBHOOK_URL = "https://n8n.homelabmanager.com/webhook-test/36fa5cac-e6da-4695-928c-afeb7b124128";
+const N8N_WEBHOOK_URL = "https://n8n.homelabmanager.com/webhook/36fa5cac-e6da-4695-928c-afeb7b124128";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint to fetch RSS feed via n8n webhook
